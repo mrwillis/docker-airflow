@@ -4,7 +4,7 @@
 # BUILD: docker build --rm -t puckel/docker-airflow .
 # SOURCE: https://github.com/puckel/docker-airflow
 
-FROM python:3.6-slim
+FROM python:3.6.3
 MAINTAINER Puckel_
 
 # Never prompts the user for choices on installation/configuration of packages
@@ -50,22 +50,15 @@ RUN set -ex \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
     && useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow \
     && python -m pip install -U pip setuptools wheel \
+    && curl -L https://raw.githubusercontent.com/dockito/vault/master/ONVAULT > /usr/local/bin/ONVAULT \
+    && chmod +x /usr/local/bin/ONVAULT \
     && pip install Cython \
     && pip install pytz \
     && pip install pyOpenSSL \
     && pip install ndg-httpsclient \
     && pip install pyasn1 \
     && pip install apache-airflow[crypto,celery,postgres,hive,jdbc]==$AIRFLOW_VERSION \
-    && pip install celery[redis]==3.1.17 \
-    && apt-get purge --auto-remove -yqq $buildDeps \
-    && apt-get clean \
-    && rm -rf \
-        /var/lib/apt/lists/* \
-        /tmp/* \
-        /var/tmp/* \
-        /usr/share/man \
-        /usr/share/doc \
-        /usr/share/doc-base
+    && pip install celery[redis]==3.1.17
 
 COPY script/entrypoint.sh /entrypoint.sh
 COPY config/airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
